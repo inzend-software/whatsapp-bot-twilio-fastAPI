@@ -1,0 +1,86 @@
+{
+  "name": "WhatsApp Capture \u2192 Google Sheets (starter)",
+  "nodes": [
+    {
+      "id": "1",
+      "type": "n8n-nodes-base.webhook",
+      "name": "Webhook",
+      "parameters": {
+        "path": "whatsapp-webhook",
+        "httpMethod": "POST"
+      }
+    },
+    {
+      "id": "2",
+      "type": "n8n-nodes-base.set",
+      "name": "Set Fields",
+      "parameters": {
+        "values": [
+          {
+            "name": "sender",
+            "value": "={{ $json[\"From\"] }}",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "value": "={{ $json[\"Body\"] }}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "id": "3",
+      "type": "n8n-nodes-base.google-sheets",
+      "name": "Google Sheets Append",
+      "parameters": {
+        "operation": "append",
+        "sheetId": "YOUR_SHEET_ID",
+        "range": "Sheet1"
+      }
+    },
+    {
+      "id": "4",
+      "type": "n8n-nodes-base.respond-to-webhook",
+      "name": "Respond",
+      "parameters": {
+        "responseBody": "={{ $json[\"body\"] }}"
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Set Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Fields": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets Append",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets Append": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
